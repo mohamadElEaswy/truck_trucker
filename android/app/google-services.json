@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "562783490657",
+    "project_id": "truck-trucker",
+    "storage_bucket": "truck-trucker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:562783490657:android:9a9fe5befa2e29dc421020",
+        "android_client_info": {
+          "package_name": "com.example.truck_trucker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "562783490657-9umbkpi98aek0r0m2p4gjkgid4t5n5qm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAfe8ZlxgAI7jT7kW13WwJ_0RAhAs70Xc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "562783490657-9umbkpi98aek0r0m2p4gjkgid4t5n5qm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
