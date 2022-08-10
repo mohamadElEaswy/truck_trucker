@@ -4,14 +4,18 @@ import 'package:truck_trucker/src/data/network/auth.dart';
 
 import 'data/database/database.dart';
 
-GetIt serviceLocator = GetIt.instance;
+final GetIt serviceLocator = GetIt.instance;
 
-void setUp() {
-  serviceLocator.registerSingleton<GetItAppModel>(GetItAppModelImplementation(),
-      signalsReady: true);
-  serviceLocator.registerSingleton<AuthBase>(Auth(), signalsReady: true);
-  serviceLocator.registerSingleton<Database>(FireStoreDatabase(),
-      signalsReady: true);
+Future<void>setUp() async{
+  serviceLocator.registerSingleton<GetItAppModel>(
+    GetItAppModelImplementation(),
+    signalsReady: true,
+  );
+  serviceLocator.registerLazySingleton<AuthBase>(() => Auth());
+  serviceLocator.registerSingleton<Database>(
+    FireStoreDatabase(),
+    signalsReady: true,
+  );
 }
 
 abstract class GetItAppModel extends ChangeNotifier {

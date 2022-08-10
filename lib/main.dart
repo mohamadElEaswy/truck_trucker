@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:truck_trucker/src/utils/routing/named_routs.dart';
 import 'firebase_options.dart';
-import 'src/injection.dart';
+import 'src/injection.dart' as di;
 import 'src/utils/theme/theme_data.dart';
 
 void main() async {
@@ -13,7 +13,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   //the following line is to init the injection using get_it package
-  setUp();
+  await di.setUp();
   runApp(const MyApp());
 }
 

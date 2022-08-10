@@ -5,7 +5,7 @@ import '../../../data/models/user_model.dart';
 import '../../../data/network/auth.dart';
 import '../../../global_widgets/global_sized_box.dart';
 import '../../../global_widgets/global_text_form_field.dart';
-import '../../../injection.dart';
+import '../../../injection.dart' as di;
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -29,17 +29,21 @@ class _AuthPageState extends State<AuthPage> {
     FocusScope.of(context).requestFocus(_phoneFocusNode);
   }
 
-  Auth auth = serviceLocator.get<Auth>();
+  AuthBase auth = di.serviceLocator.get<AuthBase>();
   void submit() async {
+    auth.test();
+    auth.signInAnonymously().then((User? user) {
+      di.serviceLocator.get<Database>().setUser(
+        user: user!,
+        userModel: UserModel(
+          name: _nameController.text,
+          id: user.uid,
+          phone: _phoneController.text,
+        ),
+      );
+    }).catchError((error) {});
     User? user = await auth.currentUser();
-    serviceLocator.get<Database>().setUser(
-          user: user!,
-          userModel: UserModel(
-            name: _nameController.text,
-            id: '',
-            phone: _phoneController.text,
-          ),
-        );
+
   }
   // serviceLocator.get<Database>().test();
 
