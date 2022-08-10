@@ -12,6 +12,10 @@ class FireStoreService {
     await reference.set(data);
   }
 
+  Future<DocumentSnapshot<Map<String, dynamic>>> getData({required String path}) async {
+    final DocumentReference<Map<String, dynamic>> reference = FirebaseFirestore.instance.doc(path);
+    return await reference.get();
+  }
   Future<void> deleteData({required String path}) async {
     final reference = FirebaseFirestore.instance.doc(path);
     // print('delete $path');

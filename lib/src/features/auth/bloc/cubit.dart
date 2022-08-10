@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:truck_trucker/src/features/auth/bloc/states.dart';
 import '../../../data/database/database.dart';
 import '../../../data/models/user_model.dart';
+import '../../../domain/repository/repository_controller.dart';
 import '../../../injection.dart' as di;
 import '../../../data/network/auth.dart';
 import '../../../utils/routing/named_routs.dart';
@@ -14,13 +16,13 @@ class AuthCubit extends Cubit<AuthState> {
   AuthBase auth = di.serviceLocator.get<AuthBase>();
   static AuthCubit get(context) => BlocProvider.of(context);
 
-  void submit({
+  Future<void> submit({
     required BuildContext context,
     required String name,
     required String phone,
   }) async {
     emit(AuthLoading());
-    User? user = auth.currentUser;
+    // User? user = auth.currentUser;
     await auth.signInAnonymously().then((User? user) {
       di.serviceLocator.get<Database>().setUser(
             user: user!,
@@ -28,12 +30,27 @@ class AuthCubit extends Cubit<AuthState> {
               name: name,
               id: user.uid,
               phone: phone,
+              createdAt: DateTime.now(),
             ),
           );
-
+      emit(AuthSuccess());
       RoutingMethods.replaceNamed(context: context, route: NamedRouts.home);
-    }).catchError((error) {});
+    }).catchError((Object? error) {
+      if (kDebugMode) {
+        print(error.toString());
+      }
+      emit(AuthFailure(error: error!));
+    });
 
-    emit(AuthSuccess());
+
+  }
+
+  // Future<UserModel?> getUserData() async {
+  //   return di.serviceLocator.get<RepositoryController>().getUserData();
+  // }
+
+  Future<void> signOut() async {
+    await auth.signOut();
+    emit(AuthSignOut());
   }
 }

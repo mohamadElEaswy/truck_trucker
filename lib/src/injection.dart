@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:truck_trucker/src/data/network/auth.dart';
 import 'data/database/database.dart';
+import 'domain/repository/repository_controller.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
@@ -15,6 +16,8 @@ Future<void> setUp() async {
     FireStoreDatabase(),
     signalsReady: true,
   );
+
+  serviceLocator.registerSingleton<RepositoryController>(RepositoryController());
 }
 
 abstract class GetItAppModel extends ChangeNotifier {

@@ -7,6 +7,7 @@ class AppThemeData{
   );
 
   static ThemeData? darkTheme = ThemeData(
+    useMaterial3: true,
     primarySwatch: Colors.indigo,
     brightness: Brightness.dark,
   );

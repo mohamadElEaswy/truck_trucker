@@ -4,13 +4,14 @@ import 'firestore_services.dart';
 
 abstract class Database {
   Future<void> setUser({required UserModel userModel, required User user});
+  Future<UserModel?> getUserData(String id);
 }
 
 class FireStoreDatabase implements Database {
   // FireStoreDatabase._();
   // static final instance = FireStoreDatabase._();
   final FireStoreService _service = FireStoreService.instance;
-  late UserModel userModel;
+   UserModel? userModel;
   @override
   Future<void> setUser(
       {required UserModel userModel, required User user}) async {
@@ -18,5 +19,12 @@ class FireStoreDatabase implements Database {
       path: 'users/${user.uid}',
       data: userModel.toJson(),
     );
+  }
+
+  @override
+  Future<UserModel?> getUserData(String id) async {
+    return _service.getData(path: 'users/$id').then((value) {
+      return UserModel.fromJson(value.data()!);
+    });
   }
 }

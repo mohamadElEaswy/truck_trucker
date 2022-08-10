@@ -4,6 +4,8 @@
         android:label="truck_trucker"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+       <meta-data android:name="com.google.android.geo.API_KEY"
+           android:value="AIzaSyBAfe8ZlxgAI7jT7kW13WwJ_0RAhAs70Xc"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -32,3 +34,4 @@
             android:value="2" />
     </application>
 </manifest>
+<!--    AIzaSyB7xZGne9mTOx3Nz4vaNlbT6azgBBZY98Q?-->
