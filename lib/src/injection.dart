@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:truck_trucker/src/data/network/auth.dart';
-
 import 'data/database/database.dart';
 
 final GetIt serviceLocator = GetIt.instance;
 
-Future<void>setUp() async{
+Future<void> setUp() async {
   serviceLocator.registerSingleton<GetItAppModel>(
     GetItAppModelImplementation(),
     signalsReady: true,

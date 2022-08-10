@@ -1,18 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class AuthBase {
-  Future<User?> currentUser();
+  User? get currentUser;
+  Stream<User?> authUserState();
+  Future<User?> getCurrentUser();
   Future<User?> signInAnonymously();
   Future<void> signOut();
-  test();
 }
 
 class Auth implements AuthBase {
+
+
   @override
-  test(){print('Auth');}
+  Stream<User?> authUserState() => _firebaseAuth.authStateChanges();
   final _firebaseAuth = FirebaseAuth.instance;
   @override
-  Future<User?> currentUser() async => _firebaseAuth.currentUser;
+  Future<User?> getCurrentUser() async => _firebaseAuth.currentUser;
 
   @override
   Future<User?> signInAnonymously() async {
@@ -24,4 +28,7 @@ class Auth implements AuthBase {
   Future<void> signOut() async {
     return await FirebaseAuth.instance.signOut();
   }
+
+  @override
+  User? get currentUser => _firebaseAuth.currentUser;
 }

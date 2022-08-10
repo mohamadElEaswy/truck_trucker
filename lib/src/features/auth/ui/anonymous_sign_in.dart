@@ -1,13 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../../../data/database/database.dart';
-import '../../../data/models/user_model.dart';
-import '../../../data/network/auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../global_widgets/global_sized_box.dart';
 import '../../../global_widgets/global_text_form_field.dart';
-import '../../../injection.dart' as di;
-import '../../../utils/routing/named_routs.dart';
-import '../../../utils/routing/routing_methods.dart';
+import '../bloc/cubit.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -17,6 +12,8 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+
+
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final FocusNode _phoneFocusNode = FocusNode();
@@ -31,27 +28,18 @@ class _AuthPageState extends State<AuthPage> {
     FocusScope.of(context).requestFocus(_phoneFocusNode);
   }
 
-  AuthBase auth = di.serviceLocator.get<AuthBase>();
   void submit() async {
-    auth.test();
-    // auth.signInAnonymously().then((User? user) {
-    //   di.serviceLocator.get<Database>().setUser(
-    //     user: user!,
-    //     userModel: UserModel(
-    //       name: _nameController.text,
-    //       id: user.uid,
-    //       phone: _phoneController.text,
-    //     ),
-    //   );
-    // }).catchError((error) {});
-    // User? user = await auth.currentUser();
-    RoutingMethods.pushNamed(
-      context: context,
-      route: NamedRouts.home,
-    );
+    _formKey.currentState!.validate()
+        ? context.read<AuthCubit>().submit(
+              context: context,
+              name: _nameController.text,
+              phone: _phoneController.text,
+            )
+        : null;
   }
-  // serviceLocator.get<Database>().test();
 
+  // serviceLocator.get<Database>().test();
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -62,6 +50,7 @@ class _AuthPageState extends State<AuthPage> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(8.0),
             child: Form(
+              key: _formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -80,13 +69,21 @@ class _AuthPageState extends State<AuthPage> {
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     onFieldSubmitted: (String? name) => _phoneEditingComplete,
+                    validator: (String? name) => name == null || name.isEmpty
+                        ? 'Please enter your name'
+                        : null,
+                    controller: _nameController,
                   ),
                   const GlobalSizedBox(height: 10),
                   GlobalTextFormField(
                     labelText: 'Phone',
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.phone,
                     textInputAction: TextInputAction.next,
                     onFieldSubmitted: (String? phone) => submit,
+                    validator: (String? phone) => phone == null || phone.isEmpty
+                        ? 'Please enter your phone'
+                        : null,
+                    controller: _phoneController,
                   ),
                   const GlobalSizedBox(height: 20),
                   SizedBox(
