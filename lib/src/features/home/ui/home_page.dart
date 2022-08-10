@@ -9,5 +9,10 @@ class HomePage extends StatelessWidget {
         body: const Center(
           child: Text('home page'),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          tooltip: 'Add Package',
+          child: const Icon(Icons.add),
+        ),
       );
 }

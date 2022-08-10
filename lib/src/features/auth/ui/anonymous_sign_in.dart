@@ -6,6 +6,8 @@ import '../../../data/network/auth.dart';
 import '../../../global_widgets/global_sized_box.dart';
 import '../../../global_widgets/global_text_form_field.dart';
 import '../../../injection.dart' as di;
+import '../../../utils/routing/named_routs.dart';
+import '../../../utils/routing/routing_methods.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({Key? key}) : super(key: key);
@@ -32,18 +34,21 @@ class _AuthPageState extends State<AuthPage> {
   AuthBase auth = di.serviceLocator.get<AuthBase>();
   void submit() async {
     auth.test();
-    auth.signInAnonymously().then((User? user) {
-      di.serviceLocator.get<Database>().setUser(
-        user: user!,
-        userModel: UserModel(
-          name: _nameController.text,
-          id: user.uid,
-          phone: _phoneController.text,
-        ),
-      );
-    }).catchError((error) {});
-    User? user = await auth.currentUser();
-
+    // auth.signInAnonymously().then((User? user) {
+    //   di.serviceLocator.get<Database>().setUser(
+    //     user: user!,
+    //     userModel: UserModel(
+    //       name: _nameController.text,
+    //       id: user.uid,
+    //       phone: _phoneController.text,
+    //     ),
+    //   );
+    // }).catchError((error) {});
+    // User? user = await auth.currentUser();
+    RoutingMethods.pushNamed(
+      context: context,
+      route: NamedRouts.home,
+    );
   }
   // serviceLocator.get<Database>().test();
 
