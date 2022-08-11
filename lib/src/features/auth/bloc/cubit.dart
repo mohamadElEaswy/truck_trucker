@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:truck_trucker/src/features/auth/bloc/states.dart';
 import '../../../data/database/database.dart';
 import '../../../data/models/user_model.dart';
-import '../../../domain/repository/repository_controller.dart';
 import '../../../injection.dart' as di;
 import '../../../data/network/auth.dart';
 import '../../../utils/routing/named_routs.dart';

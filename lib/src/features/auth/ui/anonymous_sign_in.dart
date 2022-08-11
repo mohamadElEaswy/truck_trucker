@@ -95,8 +95,10 @@ class _AuthPageState extends State<AuthPage> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: state is AuthLoading ? null: submit,
-                          child: state is AuthLoading ? const CircularProgressIndicator(): const Text('Submit'),
+                          onPressed: state is AuthLoading ? null : submit,
+                          child: state is AuthLoading
+                              ? const CircularProgressIndicator()
+                              : const Text('Submit'),
                         ),
                       ),
                     ],
