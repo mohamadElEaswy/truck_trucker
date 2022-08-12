@@ -11,7 +11,9 @@ abstract class MainRepository {
   UserModel? userModel;
   Future<void> signOut();
   Future pushShipmentData(
-      {required String shipmentId, required ShipmentModel data});
+      {required String shipmentId,
+      required ShipmentModel data,
+      required LocationModel locationModel});
 }
 
 class Repository implements MainRepository {
@@ -35,9 +37,16 @@ class Repository implements MainRepository {
   Future<void> signOut() async {
     await auth.signOut();
   }
+
   @override
   Future pushShipmentData(
-      {required String shipmentId, required ShipmentModel data}) async {
-    return await database.pushShipmentData(shipmentId: shipmentId, data: data);
+      {required String shipmentId,
+      required ShipmentModel data,
+      required LocationModel locationModel}) async {
+    return await database.pushShipmentData(
+      shipmentId: shipmentId,
+      data: data,
+      locationModel: locationModel,
+    );
   }
 }

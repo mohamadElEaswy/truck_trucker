@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ShipmentModel {
   late String id;
   String? name;
-  List<LocationModel>? route = [];
+  // List<LocationModel>? route = [];
   DateTime? createdAt;
   DateTime? deliveredAt;
 
@@ -13,23 +11,23 @@ class ShipmentModel {
   ShipmentModel({
     required this.id,
     this.name,
-    this.route,
+    // this.route,
     this.createdAt,
     this.deliveredAt,
   });
 
-  ShipmentModel.fromJson(Map<String, dynamic> json) {
+  ShipmentModel.fromJson(Map<String, dynamic> json, String documentId) {
     id = json['id'] as String;
     name = json['name'] as String;
-    route = (json['route'] as List<LocationModel>)
-        .map((location) => LocationModel.fromJson(location.toJson())) as List<LocationModel>;
+    // route = (json['route'] as List<LocationModel>)
+    //     .map((location) => LocationModel.fromJson(location.toJson())) as List<LocationModel>;
     createdAt = (json['createdAt']).toDate();
     deliveredAt = (json['deliveredAt']).toDate();
   }
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'route': route?.map((location) => location.toJson()).toList(),
+        // 'route': route?.map((location) => location.toJson()).toList(),
         'createdAt': createdAt,
         'deliveredAt': deliveredAt,
       };

@@ -30,25 +30,23 @@ class FireStoreService {
   DocumentReference<Map<String, dynamic>> ref(String shipmentId) =>
       FirebaseFirestore.instance.doc('shipments/$shipmentId');
 
-  Future shipmentData({required ShipmentModel data})async{
+  Future shipmentData({required ShipmentModel data}) async {
     return await ref('shipmentId').get();
   }
+
   // launch or create main shipment
   Future startShipment(
-      {required String shipmentId, required ShipmentModel data}) async {
-    bool exists = await ref('$shipmentId').get().then((value) => value.exists);
+      {required String shipmentId, required ShipmentModel data, required LocationModel locationModel,}) async {
+    bool exists = await ref(shipmentId).get().then((value) => value.exists);
     if (!exists) {
-      print('--------------------');
-     await ref(shipmentId).set(data.toJson());
-    //  await pushLocation(shipmentId: shipmentId, data: data);
+      await ref(shipmentId).set(data.toJson());
+      //  await pushLocation(shipmentId: shipmentId, data: data);
     }
-      // else {print('++++++++++++++++++++');}
-    //   return await pushLocation(shipmentId: shipmentId, data: data);
-    }
-
+    return await pushLocation(shipmentId: shipmentId, data: locationModel);
+  }
 
   Future<DocumentReference<Map<String, dynamic>>> pushLocation(
-          {required String shipmentId, required ShipmentModel data}) async =>
+          {required String shipmentId, required LocationModel data}) async =>
       await ref(shipmentId).collection('locations').add(data.toJson());
 
 //Global method to get data from Cloud FireStore databases as a live stream

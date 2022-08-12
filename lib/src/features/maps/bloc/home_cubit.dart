@@ -7,7 +7,6 @@ import 'package:location/location.dart' as loc;
 import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:truck_trucker/src/data/models/shipment_model.dart';
-import '../../../data/database/database.dart';
 import '../../../domain/repository/repository_controller.dart';
 import '../../../injection.dart' as di;
 part 'home_state.dart';
@@ -100,40 +99,60 @@ class HomeCubit extends Cubit<HomeState> {
   Future pushShipmentData({
     required ShipmentModel shipmentModel,
     required String shipmentId,
+    required LocationModel locationModel,
   }) async {
-    await di.serviceLocator
-        .get<RepositoryController>()
-        .pushShipmentData(data: shipmentModel, shipmentId: shipmentId);
+    await di.serviceLocator.get<RepositoryController>().pushShipmentData(
+        data: shipmentModel,
+        shipmentId: shipmentId,
+        locationModel: locationModel);
   }
 
-  Future<void> _startShipment(
-      {required String shipmentId, required Location data}) async {
+  LocationModel locationModel = LocationModel(
+    createdAt: DateTime.now(),
+    latitude: 0.0,
+    longitude: 0.0,
+  );
+  Future<void> startShipmentStream({
+    required String shipmentId,
+    required ShipmentModel shipmentModel,
+  }) async {
     locationSubscription = location.onLocationChanged.handleError((onError) {
       print(onError);
-      locationSubscription?.cancel();
-      // setState(() {
-      locationSubscription = null;
-      // });
-    }).listen(
-      (loc.LocationData currentLocation) async {
-        // di.serviceLocator.get<RepositoryController>().pushShipmentData(shipmentId: shipmentId, data: data.t);
-        // await FirebaseFirestore.instance
-        //     .collection('shipments')
-        //     .doc('shipment_id').collection('data')
-        //     .add(
-        //   {
-        //     'latitude': currentLocation.latitude,
-        //     'longitude': currentLocation.longitude,
-        //     'shipment_id': 'shipment_id',
-        //     'createdAt': DateTime.now()
+      stopListening();
+    }).listen((loc.LocationData currentLocation) {
+      locationModel = LocationModel(
+        createdAt: DateTime.now(),
+        latitude: currentLocation.latitude!,
+        longitude: currentLocation.longitude!,
+      );
+      pushShipmentData(
+        shipmentId: shipmentId,
+        locationModel: locationModel,
+        shipmentModel: shipmentModel,
+      );
+    })
+        // listen(
+        //   (loc.LocationData currentLocation) async {
+        //
+        //     // di.serviceLocator.get<RepositoryController>().pushShipmentData(shipmentId: shipmentId, data: data.t);
+        //     // await FirebaseFirestore.instance
+        //     //     .collection('shipments')
+        //     //     .doc('shipment_id').collection('data')
+        //     //     .add(
+        //     //   {
+        //     //     'latitude': currentLocation.latitude,
+        //     //     'longitude': currentLocation.longitude,
+        //     //     'shipment_id': 'shipment_id',
+        //     //     'createdAt': DateTime.now()
+        //     //   },
+        //     //   // SetOptions(merge: true)
+        //     // );
         //   },
-        //   // SetOptions(merge: true)
-        // );
-      },
-    );
+        // )
+        ;
   }
 
-  _stopListening() {
+  stopListening() {
     locationSubscription?.cancel();
     // setState(() {
     locationSubscription = null;
@@ -149,5 +168,56 @@ class HomeCubit extends Cubit<HomeState> {
     } else if (status.isPermanentlyDenied) {
       openAppSettings();
     }
+  }
+
+  // Stream<List<ShipmentModel>>
+  shipmentData() async* {
+    await FirebaseFirestore.instance
+        .collection('shipments')
+        .snapshots()
+        .listen((event) {
+          event.docs.forEach((element) {
+            print(element.data());
+            // ShipmentModel.fromJson( element.data(), 'documentId');
+          });
+
+    });
+    // collectionStream<ShipmentModel>(
+    //   path: 'shipments',
+    //   builder: (data, documentID) => ShipmentModel.fromJson(data, documentID),
+    // );
+  }
+
+  Stream<T> documentStream<T>({
+    required String path,
+    required T Function(Map<String, dynamic>? data, String documentID) builder,
+  }) {
+    final reference = FirebaseFirestore.instance.doc(path);
+    final snapshots = reference.snapshots();
+    return snapshots.map((snapshot) => builder(snapshot.data()!, snapshot.id));
+  }
+
+  Stream<List<T>> collectionStream<T>({
+    required String? path,
+    required T Function(dynamic data, String documentId) builder,
+    Query Function(Query query)? queryBuilder,
+    int Function(T lhs, T rhs)? sort,
+  }) {
+    print('sssssssssssss');
+    Query query = FirebaseFirestore.instance.collection(path!);
+    if (queryBuilder != null) {
+      query = queryBuilder(query);
+    }
+    final snapshots = query.snapshots();
+    return snapshots.map((snapshot) {
+      final result = snapshot.docs
+          .map((snapshot) => builder(snapshot.data(), snapshot.id))
+          .where((value) => value != null)
+          .toList();
+      if (sort != null) {
+        result.sort(sort);
+      }
+      return result;
+    });
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:truck_trucker/src/data/models/shipment_model.dart';
 import 'package:truck_trucker/src/domain/repository/repository_controller.dart';
 import 'package:truck_trucker/src/features/maps/bloc/home_cubit.dart';
 import 'package:truck_trucker/src/injection.dart' as di;
@@ -24,17 +25,18 @@ class HomePage extends StatelessWidget {
             )
           ],
         ),
-        body: FutureBuilder<UserModel?>(
-          future: di.serviceLocator.get<RepositoryController>().getUserData(),
-          builder: (BuildContext context, AsyncSnapshot<UserModel?> snapshot) {
-            if (snapshot.hasData) {
-              return _homeBody(snapshot.data!);
-            } else if (snapshot.hasError) {
-              return _error(snapshot.error.toString());
-            }
-            return const GlobalLoading();
-          },
-        ),
+        body: streamBuilder(),
+        // FutureBuilder<UserModel?>(
+        //   future: di.serviceLocator.get<RepositoryController>().getUserData(),
+        //   builder: (BuildContext context, AsyncSnapshot<UserModel?> snapshot) {
+        //     if (snapshot.hasData) {
+        //       return streamBuilder();
+        //     } else if (snapshot.hasError) {
+        //       return _error(snapshot.error.toString());
+        //     }
+        //     return const GlobalLoading();
+        //   },
+        // ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => RoutingMethods.pushNamed(
               context: context, route: NamedRouts.shipmentFormPage),
@@ -44,12 +46,12 @@ class HomePage extends StatelessWidget {
       );
   Widget _error(Object error) => Text(error.toString());
 
-  Widget _homeBody(UserModel user) => ListView.builder(
+  Widget _homeList(List<ShipmentModel> data) => ListView.builder(
         padding: const EdgeInsets.all(8.0),
         itemCount: 10,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: const Text('Location'),
+            title: Text(data[index].id),
             subtitle:
                 const Text('start date 2020-01-01, arriving at 2029-01-01'),
             onTap: () {
@@ -59,4 +61,22 @@ class HomePage extends StatelessWidget {
           );
         },
       );
+
+  Widget streamBuilder() {
+    return BlocConsumer<HomeCubit, HomeState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        final HomeCubit bloc = BlocProvider.of<HomeCubit>(context);
+        return StreamBuilder(
+          stream: bloc.shipmentData(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasData) {
+              return _homeList(snapshot.data);
+            }
+            return const Text('Loading');
+          },
+        );
+      },
+    );
+  }
 }

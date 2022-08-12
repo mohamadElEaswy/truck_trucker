@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:truck_trucker/src/data/models/user_model.dart';
 import '../models/shipment_model.dart';
@@ -7,7 +6,11 @@ import 'firestore_services.dart';
 abstract class Database {
   Future<void> setUser({required UserModel userModel, required User user});
   Future<UserModel?> getUserData(String id);
-  Future<void> pushShipmentData({required String shipmentId, required ShipmentModel data});
+  Future<void> pushShipmentData({
+    required String shipmentId,
+    required ShipmentModel data,
+    required LocationModel locationModel,
+  });
   // Stream<Object> streamCurrentLocation(
   //     {required String id, required String shipmentId});
 }
@@ -34,14 +37,27 @@ class FireStoreDatabase implements Database {
       return UserModel.fromJson(value.data()!);
     });
   }
+
   @override
-  Future pushShipmentData({required String shipmentId, required ShipmentModel data}) async {
+  Future pushShipmentData({
+    required String shipmentId,
+    required ShipmentModel data,
+    required LocationModel locationModel,
+  }) async {
     return await _service.startShipment(
       shipmentId: shipmentId,
       data: data,
+      locationModel: locationModel,
     );
   }
 
+  Future pushLocation({
+    required String shipmentId,
+    required LocationModel locationModel,
+  }) async {
+    return await _service.pushLocation(
+        shipmentId: shipmentId, data: locationModel);
+  }
   // @override
   // Stream<Object> streamCurrentLocation(
   //     {required String id, required String shipmentId}) {

@@ -16,17 +16,19 @@ class _StartShipmentPageState extends State<StartShipmentPage> {
   final TextEditingController _shipmentController = TextEditingController();
 
   Future<void> submit() async {
-    _formKey.currentState!.validate() ?
-    await BlocProvider.of<HomeCubit>(context).pushShipmentData(
-      shipmentId: _shipmentController.text,
-      shipmentModel: ShipmentModel(
-        id: _shipmentController.text,
-        createdAt: DateTime.now(),
-        name: '',
+    _formKey.currentState!.validate()
+        ? await BlocProvider.of<HomeCubit>(context).startShipmentStream(
+            shipmentId: _shipmentController.text,
+            shipmentModel: ShipmentModel(
+              id: _shipmentController.text,
+              createdAt: DateTime.now(),
+              name: '',
+            ),
 
-      ),
-    ) : null ;
+          )
+        : null;
   }
+
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
