@@ -29,7 +29,7 @@ class _AuthPageState extends State<AuthPage> {
 
   void submit() async {
     _formKey.currentState!.validate()
-        ? context.read<AuthCubit>().submit(
+        ? await context.read<AuthCubit>().submit(
               context: context,
               name: _nameController.text,
               phone: _phoneController.text,

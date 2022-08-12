@@ -1,50 +1,59 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ShipmentModel {
   late String id;
   String? name;
-  List<Location>? route = [];
-  // Location? location;
+  List<LocationModel>? route = [];
+  DateTime? createdAt;
+  DateTime? deliveredAt;
 
+  // 'createdAt': DateTime.now(),
+  // 'name': data.name,
+  // 'shipment_id': shipmentId,
   ShipmentModel({
     required this.id,
     this.name,
     this.route,
-    // this.location,
+    this.createdAt,
+    this.deliveredAt,
   });
 
   ShipmentModel.fromJson(Map<String, dynamic> json) {
     id = json['id'] as String;
     name = json['name'] as String;
-    route = (json['route'] as List)
-        .map((location) => Location.fromJson(location)) as List<Location>;
-    // location = Location.fromJson(json['location']);
+    route = (json['route'] as List<LocationModel>)
+        .map((location) => LocationModel.fromJson(location.toJson())) as List<LocationModel>;
+    createdAt = (json['createdAt']).toDate();
+    deliveredAt = (json['deliveredAt']).toDate();
   }
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'route': route!.map((location) => location.toJson()).toList(),
-        // 'location': location,
+        'route': route?.map((location) => location.toJson()).toList(),
+        'createdAt': createdAt,
+        'deliveredAt': deliveredAt,
       };
 }
 
-class Location {
+class LocationModel {
   late double latitude;
   late double longitude;
-  late DateTime timestamp;
+  late DateTime createdAt;
 
-  Location({
+  LocationModel({
     required this.latitude,
     required this.longitude,
-    required this.timestamp,
+    required this.createdAt,
   });
 
-  Location.fromJson(Map<String, dynamic> json) {
+  LocationModel.fromJson(Map<String, dynamic> json) {
     latitude = json['latitude'] as double;
     longitude = json['longitude'] as double;
-    timestamp = DateTime.parse(json['timestamp'] as String);
+    createdAt = DateTime.parse(json['createdAt'] as String);
   }
   Map<String, dynamic> toJson() => {
         'latitude': latitude,
         'longitude': longitude,
-        'timestamp': timestamp.toIso8601String(),
+        'timestamp': createdAt.toIso8601String(),
       };
 }

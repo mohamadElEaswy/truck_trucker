@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:truck_trucker/src/data/models/shipment_model.dart';
 
 import '../../data/database/database.dart';
 import '../../data/models/user_model.dart';
@@ -9,16 +10,18 @@ abstract class MainRepository {
   Future<UserModel?> getUserData();
   UserModel? userModel;
   Future<void> signOut();
+  Future pushShipmentData(
+      {required String shipmentId, required ShipmentModel data});
 }
 
 class Repository implements MainRepository {
   AuthBase auth = di.serviceLocator.get<AuthBase>();
+  Database database = di.serviceLocator.get<Database>();
   @override
   UserModel? userModel;
   @override
   Future<UserModel?> getUserData() async {
-    return await di.serviceLocator
-        .get<Database>()
+    return await database
         .getUserData(auth.currentUser!.uid)
         .then((value) => userModel = value)
         .catchError((Object? error) {
@@ -27,8 +30,14 @@ class Repository implements MainRepository {
       }
     });
   }
+
   @override
   Future<void> signOut() async {
     await auth.signOut();
+  }
+  @override
+  Future pushShipmentData(
+      {required String shipmentId, required ShipmentModel data}) async {
+    return await database.pushShipmentData(shipmentId: shipmentId, data: data);
   }
 }

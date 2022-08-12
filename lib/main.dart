@@ -31,12 +31,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
-          BlocProvider<AuthCubit>(
-            create: (context) => AuthCubit(),
-          ),
+          BlocProvider<AuthCubit>(create: (context) => AuthCubit()),
           BlocProvider<HomeCubit>(
-            create: (context) => HomeCubit(),
-          ),
+              create: (context) => HomeCubit()..requestPermission()),
         ],
         child: MaterialApp(
           title: 'Truck Trucker App',

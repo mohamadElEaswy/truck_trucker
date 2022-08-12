@@ -1,5 +1,5 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:truck_trucker/src/data/models/shipment_model.dart';
 
 class FireStoreService {
   FireStoreService._();
@@ -12,15 +12,44 @@ class FireStoreService {
     await reference.set(data);
   }
 
-  Future<DocumentSnapshot<Map<String, dynamic>>> getData({required String path}) async {
-    final DocumentReference<Map<String, dynamic>> reference = FirebaseFirestore.instance.doc(path);
+  Future<DocumentSnapshot<Map<String, dynamic>>> getData(
+      {required String path}) async {
+    final DocumentReference<Map<String, dynamic>> reference =
+        FirebaseFirestore.instance.doc(path);
     return await reference.get();
   }
+
   Future<void> deleteData({required String path}) async {
     final reference = FirebaseFirestore.instance.doc(path);
     // print('delete $path');
     await reference.delete();
   }
+  //1 create
+  //2 push locations stream
+
+  DocumentReference<Map<String, dynamic>> ref(String shipmentId) =>
+      FirebaseFirestore.instance.doc('shipments/$shipmentId');
+
+  Future shipmentData({required ShipmentModel data})async{
+    return await ref('shipmentId').get();
+  }
+  // launch or create main shipment
+  Future startShipment(
+      {required String shipmentId, required ShipmentModel data}) async {
+    bool exists = await ref('$shipmentId').get().then((value) => value.exists);
+    if (!exists) {
+      print('--------------------');
+     await ref(shipmentId).set(data.toJson());
+    //  await pushLocation(shipmentId: shipmentId, data: data);
+    }
+      // else {print('++++++++++++++++++++');}
+    //   return await pushLocation(shipmentId: shipmentId, data: data);
+    }
+
+
+  Future<DocumentReference<Map<String, dynamic>>> pushLocation(
+          {required String shipmentId, required ShipmentModel data}) async =>
+      await ref(shipmentId).collection('locations').add(data.toJson());
 
 //Global method to get data from Cloud FireStore databases as a live stream
   Stream<List<T>> collectionStream<T>({
