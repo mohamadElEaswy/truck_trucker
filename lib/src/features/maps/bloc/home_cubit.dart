@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as loc;
-import 'package:location/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:truck_trucker/src/data/models/shipment_model.dart';
 import '../../../domain/repository/repository_controller.dart';
@@ -116,6 +115,7 @@ class HomeCubit extends Cubit<HomeState> {
     required String shipmentId,
     required ShipmentModel shipmentModel,
   }) async {
+    location.changeSettings(interval: 3000, distanceFilter: 10.0);
     locationSubscription = location.onLocationChanged.handleError((onError) {
       print(onError);
       stopListening();
