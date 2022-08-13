@@ -115,11 +115,16 @@ class HomeCubit extends Cubit<HomeState> {
     required String shipmentId,
     required ShipmentModel shipmentModel,
   }) async {
-    location.changeSettings(interval: 3000, distanceFilter: 10.0);
+    // location.
+    await location.changeSettings(
+      interval: 5000,
+      distanceFilter: 500.0,
+    );
     locationSubscription = location.onLocationChanged.handleError((onError) {
       print(onError);
       stopListening();
     }).listen((loc.LocationData currentLocation) {
+      // Future.delayed(const Duration(seconds: 90));
       locationModel = LocationModel(
         createdAt: DateTime.now(),
         latitude: currentLocation.latitude!,
@@ -130,33 +135,12 @@ class HomeCubit extends Cubit<HomeState> {
         locationModel: locationModel,
         shipmentModel: shipmentModel,
       );
-    })
-        // listen(
-        //   (loc.LocationData currentLocation) async {
-        //
-        //     // di.serviceLocator.get<RepositoryController>().pushShipmentData(shipmentId: shipmentId, data: data.t);
-        //     // await FirebaseFirestore.instance
-        //     //     .collection('shipments')
-        //     //     .doc('shipment_id').collection('data')
-        //     //     .add(
-        //     //   {
-        //     //     'latitude': currentLocation.latitude,
-        //     //     'longitude': currentLocation.longitude,
-        //     //     'shipment_id': 'shipment_id',
-        //     //     'createdAt': DateTime.now()
-        //     //   },
-        //     //   // SetOptions(merge: true)
-        //     // );
-        //   },
-        // )
-        ;
+    });
   }
 
   stopListening() {
     locationSubscription?.cancel();
-    // setState(() {
     locationSubscription = null;
-    // });
   }
 
   Future requestPermission() async {
@@ -171,22 +155,15 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   // Stream<List<ShipmentModel>>
-  shipmentData() async* {
-    await FirebaseFirestore.instance
-        .collection('shipments')
-        .snapshots()
-        .listen((event) {
-          event.docs.forEach((element) {
-            print(element.data());
-            // ShipmentModel.fromJson( element.data(), 'documentId');
-          });
-
-    });
-    // collectionStream<ShipmentModel>(
-    //   path: 'shipments',
-    //   builder: (data, documentID) => ShipmentModel.fromJson(data, documentID),
-    // );
+  Stream<List<ShipmentModel>> shipmentData() {
+    return collectionStream(
+      path: 'shipments',
+      builder: (data, id) {
+        return ShipmentModel.fromJson(data);
+      },
+    );
   }
+
 
   Stream<T> documentStream<T>({
     required String path,

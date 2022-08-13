@@ -3,7 +3,7 @@ class ShipmentModel {
   String? name;
   // List<LocationModel>? route = [];
   DateTime? createdAt;
-  DateTime? deliveredAt;
+  // DateTime? deliveredAt;
 
   // 'createdAt': DateTime.now(),
   // 'name': data.name,
@@ -13,24 +13,26 @@ class ShipmentModel {
     this.name,
     // this.route,
     this.createdAt,
-    this.deliveredAt,
+    // this.deliveredAt,
   });
 
-  ShipmentModel.fromJson(Map<String, dynamic> json, String documentId) {
+  ShipmentModel.fromJson(Map<String, dynamic> json) {
     id = json['id'] as String;
     name = json['name'] as String;
     // route = (json['route'] as List<LocationModel>)
     //     .map((location) => LocationModel.fromJson(location.toJson())) as List<LocationModel>;
     createdAt = (json['createdAt']).toDate();
-    deliveredAt = (json['deliveredAt']).toDate();
+    // deliveredAt = (json['deliveredAt']).toDate();
   }
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        // 'route': route?.map((location) => location.toJson()).toList(),
-        'createdAt': createdAt,
-        'deliveredAt': deliveredAt,
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      // 'route': route?.map((location) => location.toJson()).toList(),
+      'createdAt': createdAt,
+      // 'deliveredAt': deliveredAt,
+    };
+  }
 }
 
 class LocationModel {

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:truck_trucker/src/data/models/shipment_model.dart';
@@ -48,7 +49,7 @@ class HomePage extends StatelessWidget {
 
   Widget _homeList(List<ShipmentModel> data) => ListView.builder(
         padding: const EdgeInsets.all(8.0),
-        itemCount: 10,
+        itemCount: data.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
             title: Text(data[index].id),
@@ -73,7 +74,7 @@ class HomePage extends StatelessWidget {
             if (snapshot.hasData) {
               return _homeList(snapshot.data);
             }
-            return const Text('Loading');
+            return const GlobalLoading();
           },
         );
       },
