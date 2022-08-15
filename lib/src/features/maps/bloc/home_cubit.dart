@@ -16,83 +16,60 @@ class HomeCubit extends Cubit<HomeState> {
   StreamSubscription<loc.LocationData>? locationSubscription;
   final loc.Location location = loc.Location();
 
-  // Future locationPermission() async {
-  //   final permission = await location.hasPermission();
-  //   location.requestPermission();
-  //   if (permission != loc.PermissionStatus.granted) {
-  //     return location.requestPermission();
-  //   } else {
-  //     return location.requestPermission();
-  //   }
-  // }
-
   GoogleMapController? mapController;
 
   final Map<String, Marker> markers = {};
+  // final List<Polyline> polyline = [];
+  List<LatLng> routeCoords = [];
   LatLng center = const LatLng(30.0444, 31.2357);
 
-  // List<Cars> data = [];
+  Map<PolylineId, Polyline> mapPolylines = {};
+  int polylineIdCounter = 1;
+  void add(List<LocationModel> list) {
+    final String polylineIdVal = 'polyline_id_$polylineIdCounter';
+    polylineIdCounter++;
+    final PolylineId polylineId = PolylineId(polylineIdVal);
+
+    final Polyline polyline = Polyline(
+      polylineId: polylineId,
+      consumeTapEvents: true,
+      color: Colors.deepPurple,
+      width: 5,
+      points: createPoints(list),
+    );
+
+    // setState(() {
+    mapPolylines[polylineId] = polyline;
+  }
+
+  // );
+  List<LatLng> createPoints(List<LocationModel>? list) {
+    List<LatLng> points = [];
+    routeCoords =[];
+    mapPolylines = {};
+    points = list!.map((e) => LatLng(e.latitude, e.longitude)).toList();
+    emit(HomeSuccess());
+
+    return points;
+  }
 
   Future<void> onMapCreated(GoogleMapController controller) async {
-    // emit(LoadingMapsState());
-    // data.clear();
-    // await database.getLocationsList().then(
-    //       (List<Cars> value) {
-    //     data.addAll(value);
-    //   },
-    // );
-
-    // final carsList = await locations.getGoogleOffices();
 
     mapController = controller;
 
-    // data = googleOffices.offices;
-
+    polylineIdCounter = 1;
     markers.clear();
-    // await calculateDistance();
-    // for (final car in data) {
-    //   final icon = await BitmapDescriptor.fromAssetImage(
-    //     const ImageConfiguration(size: Size(30, 30), devicePixelRatio: 2.5),
-    //     AppAssets.carIcon,
-    //   );
-    //   final marker = Marker(
-    //     visible: true,
-    //     markerId: MarkerId(car.name),
-    //     position: LatLng(car.lat, car.lng),
-    //     infoWindow: InfoWindow(
-    //       title: car.name,
-    //       snippet: car.address,
-    //     ),
-    //     icon: icon,
-    //   );
-    //   markers[car.name] = marker;
-    // }
-    // emit(SuccessMapsState());
+
+
   }
 
-//this method is to change the map view in the home
   Future<void> changeMapView(
       {required double latitude, required double longitude}) async {
     return await mapController!.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(target: LatLng(latitude, longitude), zoom: 17),
+        CameraPosition(target: LatLng(latitude, longitude), zoom: 50),
       ),
     );
-  }
-
-  _getLocation() async {
-    try {
-      final loc.LocationData locationResult = await location.getLocation();
-      print(locationResult);
-      // await FirebaseFirestore.instance.collection('location').doc('user1').set({
-      //   'latitude': _locationResult.latitude,
-      //   'longitude': _locationResult.longitude,
-      //   'name': 'john'
-      // },
-      //     SetOptions(merge: true));
-    } catch (e) {
-      print(e);
-    }
   }
 
   Future pushShipmentData({
@@ -111,15 +88,18 @@ class HomeCubit extends Cubit<HomeState> {
     latitude: 0.0,
     longitude: 0.0,
   );
-  Future<void> startShipmentStream({
+  Future startShipmentStream({
     required String shipmentId,
     required ShipmentModel shipmentModel,
-  }) async {
+  })  async{
     // location.
-    await location.changeSettings(
-      interval: 5000,
-      distanceFilter: 500.0,
-    );
+    // await location.changeSettings(
+    //   interval: 1000,
+    //   distanceFilter: 100.0,
+    // );
+    location.enableBackgroundMode();
+    // locationSubscription! = location;
+
     locationSubscription = location.onLocationChanged.handleError((onError) {
       print(onError);
       stopListening();
@@ -136,6 +116,7 @@ class HomeCubit extends Cubit<HomeState> {
         shipmentModel: shipmentModel,
       );
     });
+    locationSubscription!.resume();
   }
 
   stopListening() {
@@ -154,7 +135,6 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  // Stream<List<ShipmentModel>>
   Stream<List<ShipmentModel>> shipmentData() {
     return collectionStream(
       path: 'shipments',
@@ -162,6 +142,57 @@ class HomeCubit extends Cubit<HomeState> {
         return ShipmentModel.fromJson(data);
       },
     );
+  }
+
+  Stream<ShipmentModel> singleShipmentData(String shipmentId) {
+    return documentStream(
+      path: 'shipments/$shipmentId',
+      builder: (data, id) {
+        return ShipmentModel.fromJson(data!);
+      },
+    );
+  }
+
+  Stream<List<LocationModel>?> locationsData(String shipmentId) {
+    emit(MapLoading());
+    Stream<List<LocationModel>> stream = collectionStream<LocationModel>(
+      path: 'shipments/$shipmentId/locations',
+      builder: (data, id) {
+        return LocationModel.fromJson(data);
+      },
+    ).handleError((error) {
+      emit(MapError());
+    });
+    // add(stream);
+    // data(stream);
+
+    return stream;
+  }
+
+  List<LocationModel>? routListData = [];
+  Future<List<LocationModel>?> getLocationsList(String shipmentId) async {
+    routListData!.clear();
+    emit(MapLoading());
+    return await FirebaseFirestore.instance
+        .collection('shipments')
+        .doc(shipmentId)
+        .collection('locations')
+        .orderBy('timestamp', descending: true)
+        .get()
+        .then((value) {
+      routListData =
+          value.docs.map((e) => LocationModel.fromJson(e.data())).toList();
+
+      add(routListData!);
+      emit(MapSuccess(
+          data: value.docs
+              .map((e) => LocationModel.fromJson(e.data()))
+              .toList()));
+      add(routListData!);
+    }).catchError((e) {
+      print(e);
+      emit(MapError());
+    });
   }
 
 
@@ -180,7 +211,6 @@ class HomeCubit extends Cubit<HomeState> {
     Query Function(Query query)? queryBuilder,
     int Function(T lhs, T rhs)? sort,
   }) {
-    print('sssssssssssss');
     Query query = FirebaseFirestore.instance.collection(path!);
     if (queryBuilder != null) {
       query = queryBuilder(query);

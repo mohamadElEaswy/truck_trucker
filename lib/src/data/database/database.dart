@@ -11,6 +11,8 @@ abstract class Database {
     required ShipmentModel data,
     required LocationModel locationModel,
   });
+  Future getData(
+      {required String path});
   // Stream<Object> streamCurrentLocation(
   //     {required String id, required String shipmentId});
 }
@@ -57,6 +59,12 @@ class FireStoreDatabase implements Database {
   }) async {
     return await _service.pushLocation(
         shipmentId: shipmentId, data: locationModel);
+  }
+
+  @override
+  Future getData(
+      {required String path}) async {
+    return await _service.getData(path: path);
   }
   // @override
   // Stream<Object> streamCurrentLocation(

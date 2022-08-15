@@ -11,7 +11,7 @@ Map<String, Widget Function(BuildContext)> routs = {
   const InternetCheck(online: CheckCurrentUser()),
   NamedRouts.authPage: (context) => const AuthPage(),
   NamedRouts.home: (context) => const HomePage(),
-  NamedRouts.mapPage: (context) => const MapPage(),
+  NamedRouts.mapPage: (context) =>  MapPage(shipmentId: ModalRoute.of(context)!.settings.arguments.toString()),
   NamedRouts.shipmentFormPage: (context) => const StartShipmentPage(),
 
   // NamedRouts.singleProductPage: (context) => const SingleProductsPage(),
